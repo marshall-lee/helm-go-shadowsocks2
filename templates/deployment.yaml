@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "go-shadowsocks2.fullname" . }}
+  labels:
+    {{- include "go-shadowsocks2.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "go-shadowsocks2.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "go-shadowsocks2.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "go-shadowsocks2.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            {{- with .Values.shadowsocks }}
+            {{- if .verbose }}
+            - -verbose
+            {{- end }}
+            {{- if .cipher }}
+            - -cipher
+            - {{ .cipher }}
+            {{- end }}
+            - -key-file
+            - /etc/secrets/keyfile
+            {{- if .tcpcork }}
+            - -tcpcork
+            {{- end }}
+            {{- if .tcpfastopen }}
+            - -tcp-fast-open
+            {{- end }}
+
+            {{- if .server.enabled }}{{ with .server }}
+            - -s
+            - {{ required "Server listen address is required!" .addr }}
+            - -tcp={{ .tcp }}
+            - -udp={{ .udp }}
+            {{- end }}{{ end }}
+
+            {{- if .client.enabled }}{{ with .client }}
+            - -c
+            - {{ required "Client connect address is required!" .addr }}
+
+            {{- if .socks.enabled }}
+            - -socks
+            - {{ required "Client socks listen address is required!" .socks.addr }}
+            {{- end }}
+
+            {{- end }}{{ end }}
+
+            {{- end }}
+          ports:
+            {{- with .Values.shadowsocks }}
+            {{- if .server.enabled }}
+            - name: server
+              containerPort: {{ mustRegexSplit ":" .server.addr 2 | last }}
+              protocol: TCP
+            {{- end }}
+            {{- if and (.client.enabled) (.client.socks.enabled) }}
+            - name: socks
+              containerPort: {{ mustRegexSplit ":" .client.socks.addr 2 | last }}
+              protocol: TCP
+            {{- end }}
+            {{- end }}
+          volumeMounts:
+            - name: secrets
+              mountPath: /etc/secrets
+              readOnly: true
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: secrets
+          secret:
+            secretName: {{ include "go-shadowsocks2.fullname" . }}
+      {{- if .Values.nodeName }}
+      nodeName: {{ .Values.nodeName }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

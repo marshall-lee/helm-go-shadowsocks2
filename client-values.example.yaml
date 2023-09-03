@@ -1,0 +1,10 @@
+shadowsocks:
+  key: change-this-to-something--secure
+  client:
+    enabled: true
+    addr: server-shadowsocks:8488
+    socks:
+      enabled: true
+      addr: :1080
+  server:
+    enabled: false

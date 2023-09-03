@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "go-shadowsocks2.fullname" . }}
+  labels:
+    {{- include "go-shadowsocks2.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- with .Values.shadowsocks }}
+    {{- if .server.enabled }}
+    - name: server
+      port: {{ mustRegexSplit ":" .server.addr 2 | last }}
+      protocol: TCP
+    {{- end }}
+    {{- if and (.client.enabled) (.client.socks.enabled) }}
+    - name: socks
+      port: {{ mustRegexSplit ":" .client.socks.addr 2 | last }}
+      protocol: TCP
+    {{- end }}
+    {{- end }}
+  selector:
+    {{- include "go-shadowsocks2.selectorLabels" . | nindent 4 }}
