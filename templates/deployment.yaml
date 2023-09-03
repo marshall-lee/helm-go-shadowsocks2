@@ -58,7 +58,7 @@ spec:
 
             {{- if .client.enabled }}{{ with .client }}
             - -c
-            - {{ required "Client connect address is required!" .addr }}
+            - {{ required "Client connect address is required!" .connectAddr }}
 
             {{- if .socks.enabled }}
             - -socks

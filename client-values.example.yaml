@@ -2,7 +2,7 @@ shadowsocks:
   key: change-this-to-something--secure
   client:
     enabled: true
-    addr: server-shadowsocks:8488
+    connectAddr: server-shadowsocks:8488
     socks:
       enabled: true
   server:
