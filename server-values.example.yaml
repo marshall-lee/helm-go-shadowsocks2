@@ -4,6 +4,5 @@ shadowsocks:
     enabled: false
   server:
     enabled: true
-    addr: :8488
     tcp: true
     udp: false

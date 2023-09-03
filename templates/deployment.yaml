@@ -51,7 +51,7 @@ spec:
 
             {{- if .server.enabled }}{{ with .server }}
             - -s
-            - {{ required "Server listen address is required!" .addr }}
+            - :8488
             - -tcp={{ .tcp }}
             - -udp={{ .udp }}
             {{- end }}{{ end }}
@@ -62,7 +62,7 @@ spec:
 
             {{- if .socks.enabled }}
             - -socks
-            - {{ required "Client socks listen address is required!" .socks.addr }}
+            - :{{ .socks.port }}
             {{- end }}
 
             {{- end }}{{ end }}
@@ -72,12 +72,12 @@ spec:
             {{- with .Values.shadowsocks }}
             {{- if .server.enabled }}
             - name: server
-              containerPort: {{ mustRegexSplit ":" .server.addr 2 | last }}
+              containerPort: {{ .server.port }}
               protocol: TCP
             {{- end }}
             {{- if and (.client.enabled) (.client.socks.enabled) }}
             - name: socks
-              containerPort: {{ mustRegexSplit ":" .client.socks.addr 2 | last }}
+              containerPort: {{ .client.socks.port }}
               protocol: TCP
             {{- end }}
             {{- end }}

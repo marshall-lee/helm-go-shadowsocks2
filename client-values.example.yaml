@@ -5,6 +5,5 @@ shadowsocks:
     addr: server-shadowsocks:8488
     socks:
       enabled: true
-      addr: :1080
   server:
     enabled: false

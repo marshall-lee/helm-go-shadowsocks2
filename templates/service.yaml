@@ -5,17 +5,24 @@ metadata:
   labels:
     {{- include "go-shadowsocks2.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  {{- $serviceType := .Values.service.type }}
+  type: {{ $serviceType }}
   ports:
     {{- with .Values.shadowsocks }}
     {{- if .server.enabled }}
     - name: server
-      port: {{ mustRegexSplit ":" .server.addr 2 | last }}
+      targetPort: server
+      port: {{ .server.port }}
+    {{- if eq $serviceType "NodePort" }}
+      nodePort: {{ required "server node port is required" .server.nodePort }}
+    {{- end }}
       protocol: TCP
     {{- end }}
     {{- if and (.client.enabled) (.client.socks.enabled) }}
     - name: socks
-      port: {{ mustRegexSplit ":" .client.socks.addr 2 | last }}
+      targetPort: socks
+      port: {{ .client.socks.port }}
+      nodePort: {{ required "socks node port is required" .client.socks.nodePort }}
       protocol: TCP
     {{- end }}
     {{- end }}
