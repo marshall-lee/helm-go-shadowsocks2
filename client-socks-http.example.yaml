@@ -1,0 +1,16 @@
+shadowsocks:
+  verbose: true
+  key: change-this-to-something--secure
+  client:
+    enabled: true
+    connectAddr: server-shadowsocks:8488
+    socks:
+      enabled: true
+      serviceType: LoadBalancer
+    v2ray:
+      enabled: true
+      mode: websocket
+      tls:
+        enabled: false
+  server:
+    enabled: false

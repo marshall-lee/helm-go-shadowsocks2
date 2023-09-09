@@ -1,0 +1,12 @@
+shadowsocks:
+  verbose: true
+  key: change-this-to-something--secure
+  client:
+    enabled: false
+  server:
+    enabled: true
+    serviceType: LoadBalancer
+    v2ray:
+      enabled: true
+      tls:
+        enabled: false

@@ -1,0 +1,34 @@
+{{- with .Values.shadowsocks.server }}
+{{- if and .enabled .v2ray.enabled .v2ray.ingress.enabled }}
+{{- with .v2ray }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "go-shadowsocks2.fullname" $ }}-v2ray
+  labels:
+    {{- include "go-shadowsocks2.labels" $ | nindent 4 }}
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .tls.enabled }}
+  tls:
+  - hosts:
+    - {{ required "v2ray host is required" .host }}
+    secretName: {{ include "go-shadowsocks2.v2raySecretName" (set $ "v2ray" .) }}
+{{- end }}
+  rules:
+  - host: {{ required "v2ray host is required" .host }}
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ include "go-shadowsocks2.fullname" $ }}
+              port:
+                name: server
+{{- end }}
+{{- end }}
+{{- end }}

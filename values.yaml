@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: hashtable/go-shadowsocks2
+  repository: hashtable/go-shadowsocks2-v2ray
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -34,9 +34,6 @@ securityContext:
   readOnlyRootFilesystem: true
   runAsNonRoot: true
 
-service:
-  type: ClusterIP
-
 resources: {}
 
 nodeSelector: {}
@@ -56,10 +53,39 @@ shadowsocks:
     addr: ""
     socks:
       enabled: false
-      port: 1080
+      port: ""
       nodePort: ""
+      serviceType: ClusterIP
     tcptun: []
+    v2ray:
+      enabled: false
+      mode: websocket
+      loglevel: warning
+      tls:
+        enabled: true
+      host: ""
   server:
     enabled: false
-    port: 8488
+    port: ""
     nodePort: ""
+    serviceType: ClusterIP
+    tcp: true
+    udp: false
+    v2ray:
+      enabled: false
+      mode: websocket
+      loglevel: warning
+      tls:
+        enabled: true
+        secretName: ""
+        certManager:
+          enabled: false
+          certDuration: 2160h # 90d
+          certRenewBefore: 360h # 15d
+          issuerRef:
+            kind: Issuer
+            name: ""
+      host: ""
+      ingress:
+        enabled: false
+        annotations: {}

@@ -60,3 +60,36 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+v2ray plugin options string
+*/}}
+{{- define "go-shadowsocks2.v2rayOpts" -}}
+{{- $opts := list }}
+{{- if .server }}
+{{- $opts = mustAppend $opts "server" }}
+{{- end }}
+{{- $opts = mustAppend $opts (printf "mode=%s" (required "v2ray mode is required" .mode)) }}
+{{- if .tls.enabled }}
+{{- if .server  }}
+{{- if (not .ingress.enabled) }}
+{{- $opts = mustAppend $opts "tls" }}
+{{- $opts = mustAppend $opts (printf "host=%s" (required "v2ray host is required" .host)) }}
+{{- $opts = mustAppend $opts "cert=/etc/tls/tls.crt" }}
+{{- $opts = mustAppend $opts "key=/etc/tls/tls.key" }}
+{{- end }}
+{{- else }}
+{{- $opts = mustAppend $opts "tls" }}
+{{- $opts = mustAppend $opts (printf "host=%s" (required "v2ray host is required" .host)) }}
+{{- end }}
+{{- end }}
+{{- $opts = mustAppend $opts (printf "loglevel=%s" .loglevel) }}
+{{- join ";" $opts }}
+{{- end }}
+
+{{/*
+v2ray tls secret name
+*/}}
+{{- define "go-shadowsocks2.v2raySecretName" -}}
+{{- default (printf "%s-v2ray-tls" (include "go-shadowsocks2.fullname" .)) .v2ray.tls.secretName }}
+{{- end }}

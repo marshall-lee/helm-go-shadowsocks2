@@ -1,0 +1,23 @@
+{{- with .Values.shadowsocks.server }}
+{{- if and .enabled .v2ray.enabled .v2ray.tls.enabled .v2ray.tls.certManager.enabled }}
+{{- $secretName := include "go-shadowsocks2.v2raySecretName" (set $ "v2ray" .v2ray) }}
+{{- $host := .v2ray.host }}
+{{- with .v2ray.tls.certManager }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "go-shadowsocks2.fullname" $ }}-v2ray-tls
+  labels:
+    {{- include "go-shadowsocks2.labels" $ | nindent 4 }}
+spec:
+  secretName: {{ $secretName }}
+  duration: {{ .certDuration }}
+  renewBefore: {{ .certRenewBefore }}
+  dnsNames:
+    - {{ $host }}
+  issuerRef:
+    kind: {{ required "issuer kind is requierd" .issuerRef.kind }}
+    name: {{ required "issuer name is requierd" .issuerRef.name }}
+{{- end }}
+{{- end }}
+{{- end }}

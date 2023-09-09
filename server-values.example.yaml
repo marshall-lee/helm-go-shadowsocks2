@@ -1,8 +1,0 @@
-shadowsocks:
-  key: change-this-to-something--secure
-  client:
-    enabled: false
-  server:
-    enabled: true
-    tcp: true
-    udp: false

@@ -54,6 +54,12 @@ spec:
             - :8488
             - -tcp={{ .tcp }}
             - -udp={{ .udp }}
+            {{- if .v2ray.enabled }}
+            - -plugin
+            - v2ray-plugin
+            - -plugin-opts
+            - {{ include "go-shadowsocks2.v2rayOpts" (set .v2ray "server" true) }}
+            {{- end }}
             {{- end }}{{ end }}
 
             {{- if .client.enabled }}{{ with .client }}
@@ -62,7 +68,14 @@ spec:
 
             {{- if .socks.enabled }}
             - -socks
-            - :{{ .socks.port }}
+            - :1080
+            {{- end }}
+
+            {{- if .v2ray.enabled }}
+            - -plugin
+            - v2ray-plugin
+            - -plugin-opts
+            - {{ include "go-shadowsocks2.v2rayOpts" .v2ray }}
             {{- end }}
 
             {{- end }}{{ end }}
@@ -72,12 +85,12 @@ spec:
             {{- with .Values.shadowsocks }}
             {{- if .server.enabled }}
             - name: server
-              containerPort: {{ .server.port }}
+              containerPort: 8488
               protocol: TCP
             {{- end }}
             {{- if and (.client.enabled) (.client.socks.enabled) }}
             - name: socks
-              containerPort: {{ .client.socks.port }}
+              containerPort: 1080
               protocol: TCP
             {{- end }}
             {{- end }}
@@ -85,12 +98,26 @@ spec:
             - name: secrets
               mountPath: /etc/secrets
               readOnly: true
+            {{- with .Values.shadowsocks.server }}
+            {{- if and .enabled .v2ray.enabled .v2ray.tls.enabled (not .v2ray.ingress.enabled) }}
+            - name: tls
+              mountPath: /etc/tls
+              readOnly: true
+            {{- end }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: secrets
           secret:
             secretName: {{ include "go-shadowsocks2.fullname" . }}
+        {{- with .Values.shadowsocks.server }}
+        {{- if and .enabled .v2ray.enabled .v2ray.tls.enabled (not .v2ray.ingress.enabled) }}
+        - name: tls
+          secret:
+            secretName: {{ include "go-shadowsocks2.v2raySecretName" (set $ "v2ray" .v2ray) }}
+        {{- end }}
+        {{- end }}
       {{- if .Values.nodeName }}
       nodeName: {{ .Values.nodeName }}
       {{- end }}

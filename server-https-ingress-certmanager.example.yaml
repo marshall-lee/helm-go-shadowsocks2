@@ -1,0 +1,19 @@
+shadowsocks:
+  verbose: true
+  key: change-this-to-something--secure
+  client:
+    enabled: false
+  server:
+    enabled: true
+    v2ray:
+      enabled: true
+      host: "example.com"
+      tls:
+        enabled: true
+        certManager:
+          enabled: true
+          issuerRef:
+            kind: Issuer
+            name: letsencrypt-staging
+      ingress:
+        enabled: true
