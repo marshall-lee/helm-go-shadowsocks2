@@ -1,0 +1,24 @@
+{{- with .Values.shadowsocks.server }}
+{{- if and .enabled .tcp.enabled }}
+{{- with .tcp }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "go-shadowsocks2.fullname" $ }}-tcp
+  labels:
+    {{- include "go-shadowsocks2.labels" $ | nindent 4 }}
+spec:
+  type: {{ .serviceType }}
+  ports:
+    - name: tcp
+      targetPort: tcp
+    {{- if eq .serviceType "NodePort" }}
+      nodePort: {{ required "tcp node port is required" .nodePort }}
+    {{- end }}
+      port: {{ default 8488 .port }}
+      protocol: TCP
+  selector:
+    {{- include "go-shadowsocks2.selectorLabels" $ | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

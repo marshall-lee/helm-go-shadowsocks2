@@ -5,7 +5,8 @@ shadowsocks:
     enabled: false
   server:
     enabled: true
-    serviceType: LoadBalancer
+    tcp:
+      serviceType: LoadBalancer
     v2ray:
       enabled: true
       host: "example.com"

@@ -52,8 +52,8 @@ spec:
             {{- if .server.enabled }}{{ with .server }}
             - -s
             - :8488
-            - -tcp={{ .tcp }}
-            - -udp={{ .udp }}
+            - -tcp={{ .tcp.enabled }}
+            - -udp={{ .udp.enabled }}
             {{- if .v2ray.enabled }}
             - -plugin
             - v2ray-plugin
@@ -83,10 +83,15 @@ spec:
             {{- end }}
           ports:
             {{- with .Values.shadowsocks }}
-            {{- if .server.enabled }}
-            - name: server
+            {{- if and .server.enabled .server.tcp.enabled }}
+            - name: tcp
               containerPort: 8488
               protocol: TCP
+            {{- end }}
+            {{- if and .server.enabled .server.udp.enabled }}
+            - name: udp
+              containerPort: 8488
+              protocol: UDP
             {{- end }}
             {{- if and (.client.enabled) (.client.socks.enabled) }}
             - name: socks

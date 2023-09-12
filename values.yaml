@@ -66,11 +66,16 @@ shadowsocks:
       host: ""
   server:
     enabled: false
-    port: ""
-    nodePort: ""
-    serviceType: ClusterIP
-    tcp: true
-    udp: false
+    tcp:
+      enabled: true
+      port: ""
+      nodePort: ""
+      serviceType: ClusterIP
+    udp:
+      enabled: false
+      port: ""
+      nodePort: ""
+      serviceType: ClusterIP
     v2ray:
       enabled: false
       mode: websocket

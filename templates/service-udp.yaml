@@ -1,22 +1,24 @@
 {{- with .Values.shadowsocks.server }}
-{{- if and .enabled }}
+{{- if and .enabled .udp.enabled }}
+{{- with .udp }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "go-shadowsocks2.fullname" $ }}
+  name: {{ include "go-shadowsocks2.fullname" $ }}-udp
   labels:
     {{- include "go-shadowsocks2.labels" $ | nindent 4 }}
 spec:
   type: {{ .serviceType }}
   ports:
-    - name: server
-      targetPort: server
+    - name: udp
+      targetPort: udp
     {{- if eq .serviceType "NodePort" }}
-      nodePort: {{ required "server node port is required" .nodePort }}
+      nodePort: {{ required "udp node port is required" .nodePort }}
     {{- end }}
       port: {{ default 8488 .port }}
-      protocol: TCP
+      protocol: UDP
   selector:
     {{- include "go-shadowsocks2.selectorLabels" $ | nindent 4 }}
+{{- end }}
 {{- end }}
 {{- end }}

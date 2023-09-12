@@ -26,9 +26,9 @@ spec:
           pathType: Prefix
           backend:
             service:
-              name: {{ include "go-shadowsocks2.fullname" $ }}
+              name: {{ include "go-shadowsocks2.fullname" $ }}-tcp
               port:
-                name: server
+                name: tcp
 {{- end }}
 {{- end }}
 {{- end }}
